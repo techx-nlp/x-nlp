@@ -1,4 +1,4 @@
-from typing import List, Generic, TypeVar, Callable, Optional, Union, Type
+from typing import List, Generic, TypeVar, Callable, Optional, Union, Type, Any
 
 
 SourceT = TypeVar('SourceT')
@@ -41,7 +41,7 @@ class Either(Generic[ErrorT, SourceT], Monad[SourceT]):
         else:
             self.left = a
 
-    def __eq__(self, other: object):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Either):
             return False
 
