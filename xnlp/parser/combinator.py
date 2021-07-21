@@ -32,8 +32,18 @@ class Parser(Generic[TokenT, OutT]):
         return Or(self, other)
 
 
+MidT = TypeVar('MidT')
 class FunctorialParser(Parser[TokenT, OutT]):
-    pass
+
+    def __init__(
+            self,
+            f: Callable[[List[MidT]], List[OutT]],
+            old: Parser[TokenT, MidT]):
+        self.f = f
+        self.inner = old
+
+    def parse(self, reader: Reader[TokenT]) -> List[OutT]:
+        return self.f(self.inner.parse(reader))
 
 
 class Join(Parser[TokenT, OutT]):
