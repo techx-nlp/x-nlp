@@ -32,29 +32,38 @@ class Either(Generic[ErrorT, SourceT], Monad[SourceT]):
 
     @staticmethod
     def fail(error: ErrorT):
-        return Either(False, error, None)
+        return Left(error)
 
-    def __init__(self, succ: bool, a: ErrorT, b: SourceT):
-        self.succ = succ
-        if self.succ:
-            self.right = b
-        else:
-            self.left = a
+    @classmethod
+    def pure(cls, a: SourceT) -> Either[ErrorT, SourceT]:
+        return Right(a)
+
+
+class Left(Either[ErrorT, SourceT]):
+
+    def __init__(self, error: ErrorT):
+        self.left = error
 
     def __eq__(self, other: object) -> bool:
-        if not isinstance(other, Either):
+        if not isinstance(other, Left):
             return False
 
-        if self.succ == other.succ == True:
-            return self.right == other.right
+        return self.left == other.left
 
-        if self.succ == other.succ == False:
-            return self.left == other.left
+    def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
+        return Either.fail(self.left)
 
-        return False
 
-    def fmap(self, f: Callable[[SourceT], TargetT]) -> Functor[TargetT]:
-        if not self.succ:
-            return Either.fail(self.left)
+class Right(Either[ErrorT, SourceT]):
 
+    def __init__(self, value: SourceT):
+        self.right = value
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Right):
+            return False
+
+        return self.right == other.right
+
+    def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
         return Either.pure(f(self.right))
