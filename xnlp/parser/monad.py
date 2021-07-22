@@ -9,7 +9,6 @@ class Functor(Generic[SourceT]):
         raise NotImplementedError
 
 
-#MChildT = TypeVar('MChildT', bound=Monad[SourceT])
 class Monad(Functor[SourceT]):
 
     @staticmethod
@@ -17,7 +16,7 @@ class Monad(Functor[SourceT]):
         return m.bind(lambda x: x)
 
     @classmethod
-    def pure(cls, a: SourceT) -> Monad[SourceT]:
+    def pure(cls: Type[Monad[SourceT]], a: SourceT) -> Monad[SourceT]:
         if cls == Monad:
             raise NotImplementedError
 
@@ -31,11 +30,14 @@ ErrorT = TypeVar('ErrorT')
 class Either(Generic[ErrorT, SourceT], Monad[SourceT]):
 
     @staticmethod
-    def fail(error: ErrorT):
+    def fail(error: ErrorT) -> Either[ErrorT, SourceT]:
         return Left(error)
 
     @classmethod
-    def pure(cls, a: SourceT) -> Either[ErrorT, SourceT]:
+    def pure(
+            cls: Type[Either[ErrorT, SourceT]],
+            a: SourceT) -> Either[ErrorT, SourceT]:
+
         return Right(a)
 
 
@@ -53,6 +55,9 @@ class Left(Either[ErrorT, SourceT]):
     def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
         return Either.fail(self.left)
 
+    def bind(self, f: Callable[[SourceT], Monad[TargetT]]) -> Monad[TargetT]:
+        return Either.fail(self.left)
+
 
 class Right(Either[ErrorT, SourceT]):
 
@@ -67,3 +72,6 @@ class Right(Either[ErrorT, SourceT]):
 
     def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
         return Either.pure(f(self.right))
+
+    def bind(self, f: Callable[[SourceT], Monad[TargetT]]) -> Monad[TargetT]:
+        return f(self.right)
