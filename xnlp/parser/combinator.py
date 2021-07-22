@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Generic, TypeVar, Callable, Union, Any
 
-#from .token import Token
+from .monad import Monad, Either
 
 
 TokenT = TypeVar('TokenT')
@@ -14,15 +14,16 @@ class Reader(Generic[TokenT]):
 
 
 OutT = TypeVar('OutT')
-class Parser(Generic[TokenT, OutT]):
+MapT = TypeVar('MapT')
+class Parser(Generic[TokenT, OutT], Monad[OutT]):
     """
     An interface for all parser combinators.
     """
 
-    def __init__(self, f: Callable[[Reader[TokenT]], List[OutT]]):
+    def __init__(self, f: Callable[[Reader[TokenT]], OutT]):
         self.func = f
 
-    def parse(self, reader: Reader[TokenT]) -> List[OutT]:
+    def parse(self, reader: Reader[TokenT]) -> OutT:
         return self.func(reader)
 
     def __add__(self, other: Parser[TokenT, OutT]) -> Parser[TokenT, OutT]:
@@ -31,18 +32,18 @@ class Parser(Generic[TokenT, OutT]):
     def __or__(self, other: Parser[TokenT, OutT]) -> Parser[TokenT, OutT]:
         return Or(self, other)
 
+    def fmap(self, f: Callable[[OutT], MapT]) -> Parser[TokenT, MapT]:
+        return FunctorialParser(f, self)
+
 
 MidT = TypeVar('MidT')
 class FunctorialParser(Parser[TokenT, OutT]):
 
-    def __init__(
-            self,
-            f: Callable[[List[MidT]], List[OutT]],
-            old: Parser[TokenT, MidT]):
+    def __init__(self, f: Callable[[MidT], OutT], old: Parser[TokenT, MidT]):
         self.f = f
         self.inner = old
 
-    def parse(self, reader: Reader[TokenT]) -> List[OutT]:
+    def parse(self, reader: Reader[TokenT]) -> OutT:
         return self.f(self.inner.parse(reader))
 
 
