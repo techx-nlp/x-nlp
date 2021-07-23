@@ -75,6 +75,9 @@ class Left(Either[ErrorT, F]):
     def item(self) -> F:
         raise ValueError('Left does not yields an item')
 
+    def __repr__(self):
+        return f'Left {self.left}'
+
 
 class Right(Either[ErrorT, F]):
 
@@ -98,3 +101,9 @@ class Right(Either[ErrorT, F]):
 
     def on_fail(self, f: Callable[[ErrorT], None]) -> None:
         pass
+
+    def item(self) -> F:
+        return self.right
+
+    def __repr__(self):
+        return f'Right {self.right}'

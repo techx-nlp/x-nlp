@@ -16,7 +16,11 @@ class Reader(Generic[TokT, E]):
     def expect(
             self,
             predicate: Callable[[TokT], bool],
-            error: E) -> Either[E, TokT]:
+            error: E,
+            error_eof: E) -> Either[E, TokT]:
+
+        if self.counter >= len(self.content):
+            return Either.fail(error_eof)
 
         token = self.content[self.counter]
         self.counter += 1
@@ -34,6 +38,9 @@ class Reader(Generic[TokT, E]):
 
     def get_counter(self) -> int:
         return self.counter
+
+    def ended(self) -> bool:
+        return self.counter >= len(self.content)
 
 
 S = TypeVar('S')
@@ -88,7 +95,7 @@ class Join(Parser[TokT, S, E]):
 
             return self.b.parse(reader).fmap(inner) # type: ignore
 
-        return self.a.parse(reader).fmap(outer) # type: ignore
+        return self.a.parse(reader).bind(outer) # type: ignore
 
 
 class Or(Parser[TokT, S, E]):

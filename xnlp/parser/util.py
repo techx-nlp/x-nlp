@@ -11,8 +11,12 @@ TokT = TypeVar('TokT')
 def satisfy(predicate: Callable[[TokT], bool]) -> Parser[TokT, S, str]:
 
     def inner(reader: Reader[TokT, str]) -> Either[str, List[S]]:
+        counter = reader.get_counter()
+
         return reader.expect( # type: ignore
-            predicate, f'Parsing failed at token {reader.get_counter() - 1}'
+            predicate,
+            f'Parsing failed at token {counter}',
+            f'Early end of input at token {counter}'
         ).fmap(lambda a: [a])
 
     return Parser(inner)
@@ -61,6 +65,10 @@ def zeroOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
 
 def oneOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return parser + zeroOrMore(parser)
+
+
+def expect_end(msg: E) -> Parser[TokT, S, E]:
+    return Parser(lambda r: Either.pure([]) if r.ended() else Either.fail(msg))
 
 
 def runParser(parser: Parser[TokT, S, E], tokens: List[TokT]) -> List[S]:
