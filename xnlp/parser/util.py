@@ -55,5 +55,6 @@ def zeroOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
 
     return Parser(outer)
 
+
 def oneOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return parser + zeroOrMore(parser)
