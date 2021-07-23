@@ -34,11 +34,11 @@ class Either(Generic[ErrorT, F], Monad[F]):
         return Left(error)
 
     @classmethod
-    def pure(
-            cls: Type[Either[ErrorT, F]],
-            a: F) -> Either[ErrorT, F]:
-
+    def pure(cls: Type[Either[ErrorT, F]], a: F) -> Either[ErrorT, F]:
         return Right(a)
+
+    def success(self) -> bool:
+        raise NotImplementedError
 
 
 class Left(Either[ErrorT, F]):
@@ -58,6 +58,9 @@ class Left(Either[ErrorT, F]):
     def bind(self, f: Callable[[F], Any]) -> Either[ErrorT, T]:
         return Either.fail(self.left)
 
+    def success(self) -> bool:
+        return False
+
 
 class Right(Either[ErrorT, F]):
 
@@ -75,3 +78,6 @@ class Right(Either[ErrorT, F]):
 
     def bind(self, f: Callable[[F], Any]) -> Either[ErrorT, T]:
         return f(self.right)
+
+    def success(self) -> bool:
+        return True
