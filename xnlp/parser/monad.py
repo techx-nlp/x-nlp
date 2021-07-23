@@ -1,47 +1,47 @@
 from typing import List, Generic, TypeVar, Callable, Optional, Union, Type, Any
 
 
-SourceT = TypeVar('SourceT')
-TargetT = TypeVar('TargetT')
-class Functor(Generic[SourceT]):
+FromT = TypeVar('FromT')
+ToT = TypeVar('ToT')
+class Functor(Generic[FromT]):
 
-    def fmap(self, f: Callable[[SourceT], TargetT]) -> Functor[TargetT]:
+    def fmap(self, f: Callable[[FromT], ToT]) -> Functor[ToT]:
         raise NotImplementedError
 
 
-class Monad(Functor[SourceT]):
+class Monad(Functor[FromT]):
 
     @staticmethod
-    def join(m: Monad[Monad[SourceT]]) -> Monad[SourceT]:
+    def join(m: Monad[Monad[FromT]]) -> Monad[FromT]:
         return m.bind(lambda x: x)
 
     @classmethod
-    def pure(cls: Type[Monad[SourceT]], a: SourceT) -> Monad[SourceT]:
+    def pure(cls: Type[Monad[FromT]], a: FromT) -> Monad[FromT]:
         if cls == Monad:
             raise NotImplementedError
 
         return cls.pure(a)
 
-    def bind(self, f: Callable[[SourceT], Monad[TargetT]]) -> Monad[TargetT]:
+    def bind(self, f: Callable[[FromT], Monad[ToT]]) -> Monad[ToT]:
         raise NotImplementedError
 
 
 ErrorT = TypeVar('ErrorT')
-class Either(Generic[ErrorT, SourceT], Monad[SourceT]):
+class Either(Generic[ErrorT, FromT], Monad[FromT]):
 
     @staticmethod
-    def fail(error: ErrorT) -> Either[ErrorT, SourceT]:
+    def fail(error: ErrorT) -> Either[ErrorT, FromT]:
         return Left(error)
 
     @classmethod
     def pure(
-            cls: Type[Either[ErrorT, SourceT]],
-            a: SourceT) -> Either[ErrorT, SourceT]:
+            cls: Type[Either[ErrorT, FromT]],
+            a: FromT) -> Either[ErrorT, FromT]:
 
         return Right(a)
 
 
-class Left(Either[ErrorT, SourceT]):
+class Left(Either[ErrorT, FromT]):
 
     def __init__(self, error: ErrorT):
         self.left = error
@@ -52,16 +52,16 @@ class Left(Either[ErrorT, SourceT]):
 
         return self.left == other.left
 
-    def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
+    def fmap(self, f: Callable[[FromT], ToT]) -> Either[ErrorT, ToT]:
         return Either.fail(self.left)
 
-    def bind(self, f: Callable[[SourceT], Monad[TargetT]]) -> Monad[TargetT]:
+    def bind(self, f: Callable[[FromT], Monad[ToT]]) -> Monad[ToT]:
         return Either.fail(self.left)
 
 
-class Right(Either[ErrorT, SourceT]):
+class Right(Either[ErrorT, FromT]):
 
-    def __init__(self, value: SourceT):
+    def __init__(self, value: FromT):
         self.right = value
 
     def __eq__(self, other: object) -> bool:
@@ -70,8 +70,8 @@ class Right(Either[ErrorT, SourceT]):
 
         return self.right == other.right
 
-    def fmap(self, f: Callable[[SourceT], TargetT]) -> Either[ErrorT, TargetT]:
+    def fmap(self, f: Callable[[FromT], ToT]) -> Either[ErrorT, ToT]:
         return Either.pure(f(self.right))
 
-    def bind(self, f: Callable[[SourceT], Monad[TargetT]]) -> Monad[TargetT]:
+    def bind(self, f: Callable[[FromT], Monad[ToT]]) -> Monad[ToT]:
         return f(self.right)
