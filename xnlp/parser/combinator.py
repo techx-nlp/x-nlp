@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import List, Generic, TypeVar, Callable, Union, Any
 
-from .monad import Functor, Either
+from .monad import Monad, Either
 
 
 TokenT = TypeVar('TokenT')
@@ -15,7 +15,7 @@ class Reader(Generic[TokenT]):
 
 SourceT = TypeVar('SourceT')
 TargetT = TypeVar('TargetT')
-class Parser(Generic[TokenT, SourceT], Functor[SourceT]):
+class Parser(Generic[TokenT, SourceT], Monad[SourceT]):
     """
     An interface for all parser combinators.
     """
