@@ -38,7 +38,7 @@ def optional(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return Parser(inner)
 
 
-def zeroOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
+def zero_or_more(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
 
     def outer(reader: Reader[TokT, E]) -> Either[E, List[S]]:
         out: Either[E, List[S]] = Either.pure([])
@@ -63,7 +63,7 @@ def zeroOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return Parser(outer)
 
 
-def oneOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
+def one_or_more(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return parser + zeroOrMore(parser)
 
 

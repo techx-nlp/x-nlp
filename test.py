@@ -5,8 +5,8 @@ from xnlp.parser import (
     runParser,
     satisfy,
     optional,
-    zeroOrMore,
-    oneOrMore,
+    zero_or_more,
+    one_or_more,
     expect_end
 )
 

@@ -4,8 +4,8 @@ from .util import (
     runParser,
     satisfy,
     optional,
-    zeroOrMore,
-    oneOrMore,
+    zero_or_more,
+    one_or_more,
     expect_end
 )
 
@@ -16,7 +16,7 @@ __all__ = [
     'runParser',
     'satisfy',
     'optional',
-    'zeroOrMore',
-    'oneOrMore',
+    'zero_or_more',
+    'one_or_more',
     'expect_end'
 ]
