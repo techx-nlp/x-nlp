@@ -6,20 +6,28 @@ from .monad import Functor, Either
 
 
 TokT = TypeVar('TokT')
-class Reader(Generic[TokT]):
+E = TypeVar('E')
+class Reader(Generic[TokT, E]):
 
     def __init__(self, content: List[TokT]):
         self.content = content
         self.counter = 0
 
-    def expect(self, predicate: Callable[[TokT], bool]) -> Optional[TokT]:
+    def expect(
+            self,
+            predicate: Callable[[TokT], bool],
+            error: E) -> Either[E, TokT]:
+
         token = self.content[self.counter]
         self.counter += 1
 
         if predicate(token):
-            return token
+            return Either.pure(token)
 
-        return None
+        return Either.fail(error)
+
+    def test(self, predicate: Callable[[TokT], bool]) -> bool:
+        return predicate(self.content[self.counter])
 
     def load_counter(self, update: int) -> None:
         self.counter = update
@@ -30,16 +38,15 @@ class Reader(Generic[TokT]):
 
 S = TypeVar('S')
 T = TypeVar('T')
-E = TypeVar('E')
 class Parser(Generic[TokT, S, E], Functor[S]):
     """
     An interface for all parser combinators.
     """
 
-    def __init__(self, f: Callable[[Reader[TokT]], Either[E, List[S]]]):
+    def __init__(self, f: Callable[[Reader[TokT, E]], Either[E, List[S]]]):
         self.func = f
 
-    def parse(self, reader: Reader[TokT]) -> Either[E, List[S]]:
+    def parse(self, reader: Reader[TokT, E]) -> Either[E, List[S]]:
         return self.func(reader)
 
     def __add__(self, p: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
@@ -59,7 +66,7 @@ class FunctorialParser(Parser[TokT, S, E]):
         self.f = f
         self.inner = a
 
-    def parse(self, reader: Reader[TokT]) -> Either[E, List[S]]:
+    def parse(self, reader: Reader[TokT, E]) -> Either[E, List[S]]:
         return self.inner.parse(reader).fmap( # type: ignore
             lambda a: [self.f(i) for i in a]
         )
@@ -71,7 +78,7 @@ class Join(Parser[TokT, S, E]):
         self.a = a
         self.b = b
 
-    def parse(self, reader: Reader[TokT]) -> Either[E, List[S]]:
+    def parse(self, reader: Reader[TokT, E]) -> Either[E, List[S]]:
         # mypy doesn't support lambdas...
 
         def outer(a: List[S]):
@@ -90,7 +97,7 @@ class Or(Parser[TokT, S, E]):
         self.a = a
         self.b = b
 
-    def parse(self, reader: Reader[TokT]) -> Either[E, List[S]]:
+    def parse(self, reader: Reader[TokT, E]) -> Either[E, List[S]]:
         counter = reader.get_counter()
 
         result = self.a.parse(reader)
