@@ -1,4 +1,6 @@
-from typing import List, Generic, TypeVar, Callable, Optional, Union, Type, Any
+from __future__ import annotations
+
+from typing import List, Generic, TypeVar, Callable, Type, Any
 
 
 F = TypeVar('F')

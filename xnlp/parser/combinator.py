@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Generic, TypeVar, Callable, Union, Any, Type, Optional
+from typing import List, Generic, TypeVar, Callable
 
 from .monad import Functor, Either
 
