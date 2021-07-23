@@ -2,6 +2,7 @@ from .combinator import Parser
 
 from .util import (
     Parser,
+    runParser,
     satisfy,
     optional,
     zeroOrMore,
@@ -11,5 +12,9 @@ from .util import (
 
 __all__ = [
     'Parser',
-    'satisfy'
+    'runParser',
+    'satisfy',
+    'optional',
+    'zeroOrMore',
+    'oneOrMore'
 ]
