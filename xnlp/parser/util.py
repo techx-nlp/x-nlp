@@ -14,6 +14,7 @@ def satisfy(predicate: Callable[[TokT], bool]) -> Parser[TokT, S, str]:
 
     return Parser(inner)
 
+
 E = TypeVar('E')
 def optional(parser: Parser[TokT, S, E]):
 
