@@ -40,6 +40,12 @@ class Either(Generic[ErrorT, F], Monad[F]):
     def success(self) -> bool:
         raise NotImplementedError
 
+    def on_fail(self, f: Callable[[ErrorT], None]) -> None:
+        raise NotImplementedError
+
+    def item(self) -> F:
+        raise NotImplementedError
+
 
 class Left(Either[ErrorT, F]):
 
@@ -61,6 +67,12 @@ class Left(Either[ErrorT, F]):
     def success(self) -> bool:
         return False
 
+    def on_fail(self, f: Callable[[ErrorT], None]) -> None:
+        f(self.left)
+
+    def item(self) -> F:
+        raise ValueError('Left does not yields an item')
+
 
 class Right(Either[ErrorT, F]):
 
@@ -81,3 +93,6 @@ class Right(Either[ErrorT, F]):
 
     def success(self) -> bool:
         return True
+
+    def on_fail(self, f: Callable[[ErrorT], None]) -> None:
+        pass

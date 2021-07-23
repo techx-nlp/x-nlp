@@ -3,6 +3,7 @@ from typing import List, Generic, TypeVar, Callable, Union, Any, Type, Optional
 from .combinator import Reader, Parser
 from .monad import Either
 
+
 S = TypeVar('S')
 TokT = TypeVar('TokT')
 def satisfy(predicate: Callable[[TokT], bool]) -> Parser[TokT, S, str]:
@@ -58,3 +59,16 @@ def zeroOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
 
 def oneOrMore(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
     return parser + zeroOrMore(parser)
+
+
+def runParser(parser: Parser[TokT, S, E], tokens: List[TokT]) -> List[S]:
+
+    def raise_error(error: E) -> None:
+        raise ValueError(error)
+
+    reader = Reader[TokT, E](tokens)
+    result = parser.parse(reader)
+
+    result.on_fail(raise_error)
+
+    return result.item()
