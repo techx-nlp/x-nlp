@@ -7,7 +7,7 @@ README = (PATH / 'README.md').read_text()
 
 setup(
     name='x-nlp',
-    version='0.1.2',
+    version='0.1.3',
     description='Library of helper functions for Natural Language Processing '
                 'related algorithms (designed for the TechX NLP course).',
     long_description=README,
