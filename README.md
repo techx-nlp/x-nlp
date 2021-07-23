@@ -1,10 +1,11 @@
 # X NLP
 
-Python library of helper functions for Natural Language Processing related algorithms (designed for the course).
+Python library of helper functions for Natural Language Processing related algorithms (designed for the TechX NLP course).
 
 ## Installation
 
 haha pip go brrr:
+
 ```sh
 pip install x-nlp
 ```
