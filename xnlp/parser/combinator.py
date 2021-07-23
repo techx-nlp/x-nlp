@@ -101,7 +101,7 @@ class Or(Parser[TokT, S, E]):
         counter = reader.get_counter()
 
         result = self.a.parse(reader)
-        if (result.success()):
+        if result.success():
             return result
 
         reader.load_counter(counter)
