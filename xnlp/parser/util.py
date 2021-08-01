@@ -65,7 +65,7 @@ def zero_or_more(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
 
 
 def one_or_more(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
-    return parser + zeroOrMore(parser)
+    return parser + zero_or_more(parser)
 
 
 def expect_end(msg: E) -> Parser[TokT, S, E]:
