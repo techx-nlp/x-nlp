@@ -50,11 +50,12 @@ def zero_or_more(parser: Parser[TokT, S, E]) -> Parser[TokT, S, E]:
             def inner(b: List[S]) -> List[S]:
                 return a + b
 
-            return parse.fmap(inner) # type: ignore
+            return parse.bind(inner) # type: ignore
 
         while parse.success():
             out = out.fmap(middle) # type: ignore
             counter = reader.get_counter()
+            parse = parser.parse(reader)
 
         reader.load_counter(counter)
 
